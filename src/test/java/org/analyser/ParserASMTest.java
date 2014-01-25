@@ -29,6 +29,9 @@ public class ParserASMTest extends TestCase {
 			// all other classes names must be fully qualified.
 			Class clazz = MyClass.class;
 			
+			// String methodNameIn, String methodDescIn, String sourceIn, ClassDescription estPorteeParIn)
+			ClassDescription classDescription = new ClassDescription("org/test/pck1/MyClass", EnumTypeClass.CLASSE);
+			
 			// Get all methods
 			java.lang.reflect.Method m[] = clazz.getDeclaredMethods();
         	Method meth = null;
@@ -37,11 +40,6 @@ public class ParserASMTest extends TestCase {
 	        		meth = Method.getMethod(method);
 	        	}
 	        }
-
-			
-			
-			// String methodNameIn, String methodDescIn, String sourceIn, ClassDescription estPorteeParIn)
-			ClassDescription classDescription = new ClassDescription("org/test/pck1/MyClass", EnumTypeClass.CLASSE);
 			MethodDescription methodAppelee = new MethodDescription(meth.getName(), meth.getDescriptor(), clazz.getSimpleName(), classDescription, meth);
 			
 			// visitMethodInsn name=methodPublic2 desc=(ZLjava/lang/String;)Ljava/util/List;
@@ -51,14 +49,17 @@ public class ParserASMTest extends TestCase {
 			System.out.println("-----------------------------------------");
 			System.out.println("appels trouves :" + app.getCallees().size());
 			int i = 1;
-//			for (Appel c : app.getCallees()) {
-//				System.out.println("   " + i + "\nclassname:" + c.className 
-//						+ "\nsource:" + c.source 
-//						+ "\nline:" + c.line 
-//						+ "\nmethodName:" + c.methodName 
-//						+ "\nmethodDesc:" + c.methodDesc);
-//				i++;
-//			}
+			for (Appel c : app.getCallees()) {
+				System.out.println("   Appel n°" + i);
+				System.out.println("      appelant:" + c.getMethodAppelante().getEstPorteePar().getCompleteName() 
+							   + "\n         a la ligne n°:" + c.getLineInMethodAppelante() 
+							   + "\n         methodName:" + c.getMethodAppelante().getMethodName()
+							   + "\n         methodDesc:" + c.getMethodAppelante().getMethodDesc());
+				System.out.println("      appelee:" + c.getMethodAppelee().getEstPorteePar().getCompleteName() 
+						   + "\n         methodName:" + c.getMethodAppelee().getMethodName()
+						   + "\n         methodDesc:" + c.getMethodAppelee().getMethodDesc());
+				i++;
+			}
 			
 			assertEquals("1 appel trouvé", 1, app.getCallees().size() );
 //			assertEquals("className", "org/test/pck2/MyClass2", app.getCallees().get(0).className );

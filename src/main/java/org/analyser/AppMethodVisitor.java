@@ -18,19 +18,21 @@ public class AppMethodVisitor extends MethodVisitor {
 
 	public AppMethodVisitor(ParserASM parserASMIn, AppClassVisitor appClassVisitorIn, MethodDescription methodAppeleeIn) {
 		super(Opcodes.ASM4);
+		System.out.println("instanciate AppMethodVisitor");
 		this.parserASM = parserASMIn;
 		this.appClassVisitor = appClassVisitorIn;
 		this.methodAppelee = methodAppeleeIn;
 	}
 
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-        // Called meth : owner=MyClass source=MyClass name=methodPublic2 desc=(ZLjava/lang/String;)Ljava/util/List;
-        // Calling meth owner=org/test/pck1/MyClass name=methodPublic2 desc=(ZLjava/lang/String;)Ljava/util/List;
-
-		if (owner.equals(methodAppelee.getEstPorteePar().getCompleteName()) && name.equals(this.getMeth().getName()) && desc.equals(this.getMeth().getDescriptor())) {
-			System.out.println("            Called meth : owner=" + methodAppelee.getEstPorteePar().getCompleteName() + " source=" + methodAppelee.getSource() 
-					+ " name=" + methodAppelee.getMethodName() + " desc=" + methodAppelee.getMethodDesc());
-			System.out.println("            Calling meth owner=" + owner + " name=" + name + " desc=" + desc);
+		// opcode, owner, name et desc definissent la methode appelee
+		if (owner.equals(this.methodAppelee.getEstPorteePar().getCompleteName()) && name.equals(this.getMeth().getName()) && desc.equals(this.getMeth().getDescriptor())) {
+			System.out.println("            Called meth : owner=" + this.methodAppelee.getEstPorteePar().getCompleteName() 
+					+ " source=" + this.methodAppelee.getSource() 
+					+ " name=" + this.methodAppelee.getMethodName() + " desc=" + this.methodAppelee.getMethodDesc());
+			System.out.println("            Calling meth : owner=" + this.methodAppelee.getEstPorteePar().getCompleteName() 
+					+ " source=" + this.methodAppelee.getSource() 
+					+ " name=" + this.methodAppelee.getMethodName() + " desc=" + this.methodAppelee.getMethodDesc());
 			callsTarget = true;
 		}
 	}
@@ -45,18 +47,13 @@ public class AppMethodVisitor extends MethodVisitor {
 
 	public void visitEnd() {
 		if (callsTarget) {
-			
-			Appel appel = new Appel(null, parserASM.getMethodAppelee(), this.line);
-			parserASM.getCallees().add(appel);
-			
-//			new Callee(this.appClassVisitor.getClassName(), 
-//					this.appClassVisitor.getMethodName(), this.appClassVisitor.getMethodDesc(), 
-//					this.appClassVisitor.getSource(), this.line));
+			Appel appel = new Appel(this.appClassVisitor.getMethAppelante(), this.parserASM.getMethodAppelee(), this.line);
+			this.parserASM.getCallees().add(appel);
 		}
 	}
 
 	private Method getMeth() {
-		return parserASM.getMethodAppelee().getMeth();
+		return this.parserASM.getMethodAppelee().getMeth();
 	}
 
 }
