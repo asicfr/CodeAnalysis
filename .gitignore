@@ -1,0 +1,6 @@
+/target
+/.settings
+/.classpath
+/.project
+/CodeAnalyser PACKAGE.launch
+/CodeAnalyser TEST.launch
