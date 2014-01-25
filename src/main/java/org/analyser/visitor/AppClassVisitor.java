@@ -1,5 +1,6 @@
-package org.analyser;
+package org.analyser.visitor;
 
+import org.analyser.ParserASM;
 import org.analyser.model.ClassDescription;
 import org.analyser.model.EnumTypeClass;
 import org.analyser.model.MethodDescription;

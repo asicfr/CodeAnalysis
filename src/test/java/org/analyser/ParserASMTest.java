@@ -44,8 +44,17 @@ public class ParserASMTest extends TestCase {
 			
 			// visitMethodInsn name=methodPublic2 desc=(ZLjava/lang/String;)Ljava/util/List;
 			ParserASM app = new ParserASM("org.test", methodAppelee);
+			
+			// TODO methode permettant de lister les classes et les méthodes de chaque classes
 			app.findCallingMethodsInJar();
+			
+			// TODO lister les relations entre les classes.methodes
+			
+			
 
+			
+			
+			
 			System.out.println("-----------------------------------------");
 			System.out.println("appels trouves :" + app.getCallees().size());
 			int i = 1;
@@ -72,7 +81,5 @@ public class ParserASMTest extends TestCase {
 		}
 	}
 	
-	// 	// public List<String> methodPublic2(boolean toto, String test) {
-
 	
 }

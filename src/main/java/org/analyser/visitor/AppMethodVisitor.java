@@ -1,5 +1,6 @@
-package org.analyser;
+package org.analyser.visitor;
 
+import org.analyser.ParserASM;
 import org.analyser.model.Appel;
 import org.analyser.model.MethodDescription;
 import org.objectweb.asm.Label;

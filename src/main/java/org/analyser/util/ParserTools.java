@@ -1,4 +1,4 @@
-package org.analyser;
+package org.analyser.util;
 
 import java.io.File;
 import java.io.FileInputStream;
