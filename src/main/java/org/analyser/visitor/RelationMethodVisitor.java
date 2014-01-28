@@ -8,19 +8,17 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.Method;
 
-public class AppMethodVisitor extends MethodVisitor {
+public class RelationMethodVisitor extends MethodVisitor {
 
 	private final MethodDescription methodAppelee;
-	private final ParserASM parserASM;
-	private final AppClassVisitor appClassVisitor;
+	private final RelationClassVisitor appClassVisitor;
 	
 	boolean callsTarget;
 	int line;
 
-	public AppMethodVisitor(ParserASM parserASMIn, AppClassVisitor appClassVisitorIn, MethodDescription methodAppeleeIn) {
+	public RelationMethodVisitor(RelationClassVisitor appClassVisitorIn, MethodDescription methodAppeleeIn) {
 		super(Opcodes.ASM4);
 		System.out.println("instanciate AppMethodVisitor");
-		this.parserASM = parserASMIn;
 		this.appClassVisitor = appClassVisitorIn;
 		this.methodAppelee = methodAppeleeIn;
 	}
@@ -29,10 +27,8 @@ public class AppMethodVisitor extends MethodVisitor {
 		// opcode, owner, name et desc definissent la methode appelee
 		if (owner.equals(this.methodAppelee.getEstPorteePar().getCompleteName()) && name.equals(this.getMeth().getName()) && desc.equals(this.getMeth().getDescriptor())) {
 			System.out.println("            Called meth : owner=" + this.methodAppelee.getEstPorteePar().getCompleteName() 
-					+ " source=" + this.methodAppelee.getSource() 
 					+ " name=" + this.methodAppelee.getMethodName() + " desc=" + this.methodAppelee.getMethodDesc());
 			System.out.println("            Calling meth : owner=" + this.methodAppelee.getEstPorteePar().getCompleteName() 
-					+ " source=" + this.methodAppelee.getSource() 
 					+ " name=" + this.methodAppelee.getMethodName() + " desc=" + this.methodAppelee.getMethodDesc());
 			callsTarget = true;
 		}
@@ -48,13 +44,13 @@ public class AppMethodVisitor extends MethodVisitor {
 
 	public void visitEnd() {
 		if (callsTarget) {
-			Appel appel = new Appel(this.appClassVisitor.getMethAppelante(), this.parserASM.getMethodAppelee(), this.line);
-			this.parserASM.getCallees().add(appel);
+			Appel appel = new Appel(this.appClassVisitor.getMethAppelante(), this.methodAppelee, this.line);
+			appClassVisitor.add(appel);
 		}
 	}
 
 	private Method getMeth() {
-		return this.parserASM.getMethodAppelee().getMeth();
+		return this.methodAppelee.getMeth();
 	}
 
 }

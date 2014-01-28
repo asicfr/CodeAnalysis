@@ -1,80 +1,41 @@
 package org.analyser;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.analyser.model.Appel;
 import org.analyser.model.ClassDescription;
-import org.analyser.model.EnumTypeClass;
 import org.analyser.model.MethodDescription;
 import org.junit.Test;
-import org.objectweb.asm.commons.Method;
-import org.test.pck1.MyClass;
 
 public class ParserASMTest extends TestCase {
 
 	@Test
 	public void test1() {
 		try {
-			// ClassDescription classDescription = new ClassDescription();
-			// MethodDescription methodAppelee = new MethodDescription("void methodPublic()", methodDesc, source, classDescription);
-			
-			// classname:org/test/pck2/MyClass2
-			// source:MyClass2.java
-			// methodName:methodPrivate
-			// methodDesc:()V
-			
-			// ParserASM app = new ParserASM("org.test", "org/test/pck1/MyClass", "void methodPublic()");
-			// Java method declaration, without argument names, of the form "returnType name (argumentType1, ... argumentTypeN)",
-			// where the types are in plain Java (e.g. "int", "float", "java.util.List", ...). Classes of the java.lang package can be specified by their unqualified name; 
-			// all other classes names must be fully qualified.
-			Class clazz = MyClass.class;
-			
-			// String methodNameIn, String methodDescIn, String sourceIn, ClassDescription estPorteeParIn)
-			ClassDescription classDescription = new ClassDescription("org/test/pck1/MyClass", EnumTypeClass.CLASSE);
-			
-			// Get all methods
-			java.lang.reflect.Method m[] = clazz.getDeclaredMethods();
-        	Method meth = null;
-			for (java.lang.reflect.Method method : m) {
-	        	if ("methodPublic2".equals(method.getName())) {
-	        		meth = Method.getMethod(method);
-	        	}
-	        }
-			MethodDescription methodAppelee = new MethodDescription(meth.getName(), meth.getDescriptor(), clazz.getSimpleName(), classDescription, meth);
-			
-			// visitMethodInsn name=methodPublic2 desc=(ZLjava/lang/String;)Ljava/util/List;
-			ParserASM app = new ParserASM("org.test", methodAppelee);
-			
-			// TODO methode permettant de lister les classes et les méthodes de chaque classes
-			app.findCallingMethodsInJar();
-			
-			// TODO lister les relations entre les classes.methodes
-			
-			
 
+			ParserASM app = new ParserASM("org.test");
+			app.identifyClassesEtMethodes();
+			app.identifyRelationShip();
 			
-			
-			
-			System.out.println("-----------------------------------------");
-			System.out.println("appels trouves :" + app.getCallees().size());
-			int i = 1;
-			for (Appel c : app.getCallees()) {
-				System.out.println("   Appel n°" + i);
-				System.out.println("      appelant:" + c.getMethodAppelante().getEstPorteePar().getCompleteName() 
-							   + "\n         a la ligne n°:" + c.getLineInMethodAppelante() 
-							   + "\n         methodName:" + c.getMethodAppelante().getMethodName()
-							   + "\n         methodDesc:" + c.getMethodAppelante().getMethodDesc());
-				System.out.println("      appelee:" + c.getMethodAppelee().getEstPorteePar().getCompleteName() 
-						   + "\n         methodName:" + c.getMethodAppelee().getMethodName()
-						   + "\n         methodDesc:" + c.getMethodAppelee().getMethodDesc());
-				i++;
+			System.out.println("-------------------------------------------------------------");
+			System.out.println("CREATE");
+			List<ClassDescription> listCD = app.getLcd();
+			for (ClassDescription classDescription : listCD) {
+				System.out.println("(c" + classDescription.getNumero() + ":Clazz {name: \"" + classDescription.getCompleteName() + "\"}),");
+				List<MethodDescription> listMeth = classDescription.getPossedeLesMethodes();
+				for (MethodDescription methodDescription : listMeth) {
+					System.out.println("(m" + methodDescription.getNumero() + ":Method {name: \"" + methodDescription.getMethodName() + "\", desc: \"" + methodDescription.getMethodDesc() + "\"}),");
+					System.out.println("(c" + classDescription.getNumero() + ")-[:saMethode]->(m" + methodDescription.getNumero() + "),");
+					System.out.println("(m" + methodDescription.getNumero() + ")-[:saClasse]->(c" + classDescription.getNumero() + "),");
+				}
 			}
 			
-			assertEquals("1 appel trouvé", 1, app.getCallees().size() );
-//			assertEquals("className", "org/test/pck2/MyClass2", app.getCallees().get(0).className );
-//			assertEquals("methodName", "methodPrivate", app.getCallees().get(0).methodName );
-//			assertEquals("line", 11, app.getCallees().get(0).line );
-
+			List<Appel> liste = app.getListeAppels();
+			for (Appel appel : liste) {
+				System.out.println("(m" + appel.getMethodAppelante().getNumero() + ")-[:appel]->(m" + appel.getMethodAppelee().getNumero() + "),");
+			}
 			
 		} catch (Exception x) {
 			x.printStackTrace();

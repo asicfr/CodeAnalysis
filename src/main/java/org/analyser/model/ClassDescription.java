@@ -8,7 +8,10 @@ import java.util.List;
  * @author slabbe
  */
 public class ClassDescription {
+
+	private static int CPT = 1;
 	
+	private final int numero;
 	private final String completeName;
 	private final EnumTypeClass type;
 	
@@ -36,6 +39,7 @@ public class ClassDescription {
 	
 	public ClassDescription(String completeNameIn, EnumTypeClass typeIn) {
 		super();
+		this.numero = ClassDescription.CPT++;
 		this.completeName = completeNameIn;
 		this.type = typeIn;
 	}
@@ -70,6 +74,10 @@ public class ClassDescription {
 	
 	public List<ClassDescription> getUtiliseLaClasse() {
 		return utiliseLaClasse;
+	}
+
+	public int getNumero() {
+		return numero;
 	}
 
 	

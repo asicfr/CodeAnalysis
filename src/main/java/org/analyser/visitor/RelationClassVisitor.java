@@ -1,21 +1,21 @@
 package org.analyser.visitor;
 
-import org.analyser.ParserASM;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.analyser.model.Appel;
 import org.analyser.model.ClassDescription;
-import org.analyser.model.EnumTypeClass;
 import org.analyser.model.MethodDescription;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.Method;
 
-public class AppClassVisitor extends ClassVisitor {
+public class RelationClassVisitor extends ClassVisitor {
 
 	private final MethodDescription methodAppelee;
-	private final ParserASM parserASM;
-	private final AppMethodVisitor mv;
-
+	private final RelationMethodVisitor mv;
+	private final List<ClassDescription> lcd;
+	
 	// classe visitee
 	private String source;
 	private String className;
@@ -28,19 +28,22 @@ public class AppClassVisitor extends ClassVisitor {
 	private String signatureMethod;
 	private String[] exceptionsMethod;
 	private MethodDescription methAppelante;
+
+	private List<Appel> appels = new ArrayList<>();
 	
-	public AppClassVisitor(ParserASM parserASMIn, MethodDescription methodAppeleeIn) {
+	public RelationClassVisitor(MethodDescription methodAppeleeIn, List<ClassDescription> lcdIn) {
 		super(Opcodes.ASM4);
 		System.out.println("instanciate AppClassVisitor");
-		this.parserASM = parserASMIn;
 		this.methodAppelee = methodAppeleeIn;
-		this.mv = new AppMethodVisitor(this.parserASM, this, this.methodAppelee);
+		this.mv = new RelationMethodVisitor(this, this.methodAppelee);
+		this.lcd = lcdIn;
 	}
 
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		this.className = name;
 		System.out.println("    visite classe " + this.className);
-		this.classDescription = new ClassDescription(name, EnumTypeClass.CLASSE);
+		
+		this.classDescription = findClassDescription(name);
 	}
 
 	public void visitSource(String source, String debug) {
@@ -55,15 +58,7 @@ public class AppClassVisitor extends ClassVisitor {
 		this.signatureMethod = signatureIn;
 		this.exceptionsMethod = exceptionsIn;
 
-		final String name = this.getNameMethod();
-		final Type returnType = Type.getReturnType(this.getDescMethod());
-		final Type[] argumentTypes = Type.getArgumentTypes(this.getDescMethod());
-		final Method methodeAppelante = new Method(name, returnType, argumentTypes);
-		
-		this.methAppelante = new MethodDescription(this.getNameMethod(), 
-				this.getDescMethod(), this.getSource(), 
-				this.getClassDescription(), methodeAppelante);
-		
+		this.methAppelante = findMethodDescription(this.className, this.nameMethod, this.descMethod);
 		System.out.println("        visite methode " + this.nameMethod);
 		System.out.println("           methode access=" + access + " name=" + nameMethod + " desc=" + descMethod + " signature=" + signatureMethod);
 		return mv;
@@ -104,5 +99,38 @@ public class AppClassVisitor extends ClassVisitor {
 	public String[] getExceptionsMethod() {
 		return exceptionsMethod;
 	}
-	
+
+	public void add(Appel appel) {
+		appels.add(appel);
+	}
+
+	public List<Appel> getAppels() {
+		return appels;
+	}
+
+	private ClassDescription findClassDescription(String name) {
+		for (ClassDescription oneClassDescription : lcd) {
+			if ((oneClassDescription != null) && (oneClassDescription.getCompleteName().equals(name))) {
+				return oneClassDescription;
+			}
+		}
+		return null;
+	}
+
+	private MethodDescription findMethodDescription(String nameClass, String nameMeth, String descMeth) {
+		for (ClassDescription oneClassDescription : lcd) {
+			if ((oneClassDescription != null) && (oneClassDescription.getCompleteName().equals(nameClass))) {
+				for (MethodDescription oneMethodDescription : oneClassDescription.getPossedeLesMethodes()) {
+					if ((oneMethodDescription != null) && 
+							(oneMethodDescription.getMethodName().equals(nameMeth))
+									&& (oneMethodDescription.getMethodDesc().equals(descMeth))) {
+						return oneMethodDescription;
+					}
+				}
+				return null;
+			}
+		}
+		return null;
+	}
+
 }

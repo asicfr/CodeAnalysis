@@ -10,7 +10,17 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.Method;
+
 public class ParserTools {
+
+	public static Method extractMeth(String nameIn, String descIn) {
+		final Type returnType = Type.getReturnType(descIn);
+		final Type[] argumentTypes = Type.getArgumentTypes(descIn);
+		final Method methode = new Method(nameIn, returnType, argumentTypes);
+		return methode;
+	}
 
 	public static Set<Class<?>> getClasses(String packageName) throws Exception {
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
